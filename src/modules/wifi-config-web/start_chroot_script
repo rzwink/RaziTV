@@ -4,12 +4,18 @@ set -x
 
 source /common.sh
 
+# Install necessary packages
 apt-get update
 apt-get install -y iw hostapd dnsmasq lighttpd
 
-# Enable CGI support if using lighttpd for POST (optional)
+# Enable CGI if using lighttpd to serve shell script forms
 lighty-enable-mod cgi
 
-# No need to chmod files in /var/www/html here —
-# Just ensure they are marked executable in filesystem/
+# === Unpack filesystem/ now ===
+unpack /filesystem/root /
+
+# Now you can safely chmod your web form handler
+chmod +x /var/www/html/wifi-submit.sh
+
+# And now systemd will find and enable the service unit
 systemctl enable wifi-check.service
