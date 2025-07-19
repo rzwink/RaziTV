@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -e
 set -x
+
 source /common.sh
 
 apt-get update
 apt-get install -y iw hostapd dnsmasq lighttpd
 
-# Enable CGI for form handler
+# Enable CGI support if using lighttpd for POST (optional)
 lighty-enable-mod cgi
 
-chmod +x /var/www/html/wifi-submit.sh
-
-# Enable service to check WiFi and activate AP
+# No need to chmod files in /var/www/html here —
+# Just ensure they are marked executable in filesystem/
 systemctl enable wifi-check.service
