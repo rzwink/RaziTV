@@ -3,17 +3,17 @@ set -ex
 source /common.sh
 install_cleanup_trap
 
-# Install NetworkManager if not already
+# Install dependencies
 apt-get update
 apt-get install -y network-manager
 
-# Download the correct 64-bit (aarch64) binary
+# Download and install WiFi Connect v4.11.83 (aarch64)
 mkdir -p /usr/local/sbin
-curl -L "https://github.com/balena-os/wifi-connect/releases/download/v4.4.6/wifi-connect-aarch64" \
-    -o /usr/local/sbin/wifi-connect
+curl -L "https://github.com/balena-os/wifi-connect/releases/download/v4.11.83/wifi-connect-aarch64-unknown-linux-gnu.tar.gz" | \
+  tar -xz -C /usr/local/sbin
 chmod +x /usr/local/sbin/wifi-connect
 
-# Create systemd service if needed
+# Create systemd service
 cat > /etc/systemd/system/wifi-connect.service <<EOF
 [Unit]
 Description=WiFi Connect
@@ -29,4 +29,5 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
+# Enable the service on boot
 systemctl_if_exists enable wifi-connect.service
