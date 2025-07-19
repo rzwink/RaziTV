@@ -1,23 +1,9 @@
 #!/bin/bash
 set -ex
 source /common.sh
-
 install_cleanup_trap
 
-# Create directory for wifi-connect binary
-mkdir -p /usr/local/bin
+# Run Balena-provided WiFi Connect installer
+bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
 
-# Download wifi-connect binary
-curl -L "https://github.com/balena-os/wifi-connect/releases/latest/download/wifi-connect-aarch64" -o /usr/local/bin/wifi-connect
-chmod +x /usr/local/bin/wifi-connect
-
-# Unpack systemd service
-unpack /filesystem/etc/systemd/system /etc/systemd/system root
-
-# Create override file with custom SSID/PASS if enabled
-if [ "$WIFI_CONNECT_ENABLE" == "yes" ]; then
-    cat > /etc/default/wifi-connect <<EOF
-WIFI_CONNECT_OPTS="--portal-ssid \"$WIFI_CONNECT_SSID\" --portal-passphrase \"$WIFI_CONNECT_PASS\""
-EOF
-    systemctl_if_exists enable wifi-connect.service
-fi
+systemctl_if_exists enable wifi-connect.service
