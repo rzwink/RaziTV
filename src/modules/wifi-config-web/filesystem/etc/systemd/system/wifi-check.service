@@ -1,0 +1,11 @@
+[Unit]
+Description=Check WiFi and start hotspot + config server if disconnected
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/start_hotspot_if_needed.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

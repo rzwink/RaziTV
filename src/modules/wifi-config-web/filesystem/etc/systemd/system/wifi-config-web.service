@@ -1,8 +1,6 @@
 [Unit]
-Description=WiFi Configuration Web UI
+Description=Serve WiFi config webpage
 After=hostapd.service
-Requires=hostapd.service
-ConditionPathExists=/var/www/html/index.html
 
 [Service]
 Type=simple
