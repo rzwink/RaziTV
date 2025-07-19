@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+set -x
+source /common.sh
+
+apt-get update
+apt-get install -y iw hostapd dnsmasq lighttpd
+
+# Enable CGI for form handler
+lighty-enable-mod cgi
+
+chmod +x /var/www/html/wifi-submit.sh
+
+# Enable service to check WiFi and activate AP
+systemctl enable wifi-check.service

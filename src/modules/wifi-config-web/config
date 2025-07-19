@@ -1,0 +1,3 @@
+NAME="WiFi Config Web"
+DESCRIPTION="Serves a local web UI to collect SSID/password when hotspot is active"
+CATEGORY=network
