@@ -3,7 +3,30 @@ set -ex
 source /common.sh
 install_cleanup_trap
 
-# Run Balena-provided WiFi Connect installer
-bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
+# Install NetworkManager if not already
+apt-get update
+apt-get install -y network-manager
+
+# Download the correct 64-bit (aarch64) binary
+mkdir -p /usr/local/sbin
+curl -L "https://github.com/balena-os/wifi-connect/releases/download/v4.4.6/wifi-connect-aarch64" \
+    -o /usr/local/sbin/wifi-connect
+chmod +x /usr/local/sbin/wifi-connect
+
+# Create systemd service if needed
+cat > /etc/systemd/system/wifi-connect.service <<EOF
+[Unit]
+Description=WiFi Connect
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+ExecStart=/usr/local/sbin/wifi-connect
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
 
 systemctl_if_exists enable wifi-connect.service
