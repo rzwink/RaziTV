@@ -47,11 +47,23 @@ if [ "$FULLPAGEOS_INCLUDE_LIGHTTPD" == "yes" ]
 then
     apt-get install -y lighttpd php-common php-cgi php
     lighty-enable-mod fastcgi-php
-    #service lighttpd force-reload
+
+    # Make lighttpd wait for wifi-connect to avoid port 80 race
+    mkdir -p /etc/systemd/system/lighttpd.service.d
+    cat > /etc/systemd/system/lighttpd.service.d/wait-for-wifi-connect.conf <<EOF
+[Unit]
+After=wifi-connect.service
+Requires=wifi-connect.service
+EOF
+
+    systemctl daemon-reexec
+
+    # Continue setup...
     chown -R www-data:www-data /var/www/html
     chmod 775 /var/www/html
     usermod -a -G www-data pi
     systemctl enable clear_lighttpd_cache.service
+
     pushd /var/www/html
         #Put git clones in place
         if [ "$FULLPAGEOS_INCLUDE_DASHBOARD" == "yes" ]

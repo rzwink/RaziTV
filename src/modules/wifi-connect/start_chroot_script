@@ -13,6 +13,11 @@ curl -L "https://github.com/balena-os/wifi-connect/releases/download/v4.11.83/wi
   tar -xz -C /usr/local/sbin
 chmod +x /usr/local/sbin/wifi-connect
 
+# Write environment file
+cat > /etc/default/wifi-connect <<EOF
+PORTAL_SSID="$WIFI_CONNECT_SSID"
+EOF
+
 # Create systemd service
 cat > /etc/systemd/system/wifi-connect.service <<EOF
 [Unit]
@@ -21,7 +26,8 @@ After=network-online.target
 Requires=network-online.target
 
 [Service]
-ExecStart=/usr/local/sbin/wifi-connect
+EnvironmentFile=/etc/default/wifi-connect
+ExecStart=/usr/local/sbin/wifi-connect --portal-ssid="\${PORTAL_SSID}"
 Restart=always
 RestartSec=5
 

@@ -1,0 +1,5 @@
+# Enable WiFi Connect by default
+[ -n "$WIFI_CONNECT_ENABLE" ] || WIFI_CONNECT_ENABLE=yes
+
+# Default SSID for captive portal
+[ -n "$WIFI_CONNECT_SSID" ] || WIFI_CONNECT_SSID="RaziTV"
