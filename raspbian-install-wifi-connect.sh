@@ -169,10 +169,10 @@ install_wfc() {
 
     case "$_arch" in
         aarch64)
-            _arch_url="https://github.com/balena-os/wifi-connect/releases/download/v4.11.1/wifi-connect-aarch64-unknown-linux-gnu.tar.gz"
+            _arch_url="https://github.com/balena-os/wifi-connect/releases/download/v4.11.1/wifi-connect-v4.11.1-linux-aarch64.zip"
             ;;
         armv7l)
-            _arch_url="https://github.com/balena-os/wifi-connect/releases/download/v4.11.1/wifi-connect-armv7hf-debian.tar.gz"
+            _arch_url="https://github.com/balena-os/wifi-connect/releases/download/v4.11.1/wifi-connect-v4.11.1-linux-armv7hf.zip"
             ;;
         *)
             err "Unsupported architecture: $_arch"
@@ -183,7 +183,15 @@ install_wfc() {
 
     _download_dir=$(ensure mktemp -d)
 
-    ensure curl -Ls "$_arch_url" | tar -xz -C "$_download_dir"
+    # Ensure unzip is installed
+    ensure sudo apt-get update
+    ensure sudo apt-get install -y unzip
+
+    # Download and unzip
+    _zip_file="$_download_dir/wifi-connect.zip"
+    ensure curl -Ls "$_arch_url" -o "$_zip_file"
+    ensure unzip "$_zip_file" -d "$_download_dir"
+
 
     ensure sudo mkdir -p "$INSTALL_BIN_DIR"
     ensure sudo mv "$_download_dir/wifi-connect" "$INSTALL_BIN_DIR"
