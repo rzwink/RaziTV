@@ -1,0 +1,13 @@
+[Unit]
+Description=Balena WiFi Connect
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+EnvironmentFile=/etc/default/wifi-connect
+ExecStart=/usr/local/bin/wifi-connect $WIFI_CONNECT_OPTS
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
