@@ -23,24 +23,26 @@ unpack /filesystem/etc /etc
 unpack /filesystem/usr /usr
 unpack /filesystem/var /var
 unpack /filesystem/boot /boot
+unpack /filesystem/home /home
 
 apt-get install -y fbi
 echo "disable_splash=1" >> /boot/config.txt
 sed -i 's/$/ logo.nologo consoleblank=0 loglevel=0 quiet/' /boot/cmdline.txt
 systemctl enable splashscreen.service
 
-
-
 # Now that files exist, we can modify them
 chmod +x /var/www/html/wifi-submit.sh
 chmod +x /usr/local/bin/start_hotspot_if_needed.sh
+chmod +x /home/pi/.xinitrc
 
-systemctl enable hostapd
-systemctl enable dnsmasq
-systemctl enable lighttpd
+systemctl enable hostapd.service
+systemctl enable dnsmasq.service
+systemctl enable lighttpd.service
+systemctl enable kiosk.service
 
-systemctl enable wifi-check.service
-
+# Add emoji support
+sudo -u pi mkdir -p /home/pi/.fonts
+sudo -u pi wget --directory-prefix /home/pi/.fonts https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf
 
 
 ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
