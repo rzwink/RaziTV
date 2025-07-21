@@ -15,11 +15,15 @@ if [ -z "$SSID" ]; then
     systemctl start dnsmasq
     systemctl start lighttpd
 
-    # Show help page on screen if display is attached
-    if tvservice -s | grep -q 'HDMI'; then
-        sleep 2  # give lighttpd time to start
-        /usr/bin/chromium-browser --kiosk --noerrdialogs --disable-infobars "http://192.168.4.1/help.html" &
-    fi
+# Check if any HDMI or composite display is connected
+if grep -q "connected" /sys/class/drm/*/status; then
+    echo "Display detected. Launching help page..."
+    sleep 2  # allow lighttpd to start
+    xinit /usr/bin/chromium-browser --kiosk --noerrdialogs --disable-infobars "http://192.168.4.1/help.html" &
+else
+    echo "No display detected. Skipping browser launch."
+fi
+
 else
     echo "WiFi detected ($SSID). Stopping hotspot and launching kiosk..."
 

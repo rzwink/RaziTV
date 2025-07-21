@@ -8,6 +8,13 @@ source /common.sh
 apt-get update
 apt-get install -y iw hostapd dnsmasq lighttpd chromium-browser
 
+apt-get install -y --no-install-recommends \
+  chromium-browser \
+  xserver-xorg \
+  xinit \
+  x11-xserver-utils
+
+
 # Enable CGI (optional if serving shell scripts with lighttpd)
 lighty-enable-mod cgi || true
 
@@ -15,6 +22,13 @@ lighty-enable-mod cgi || true
 unpack /filesystem/etc /etc
 unpack /filesystem/usr /usr
 unpack /filesystem/var /var
+
+apt-get install -y fbi
+echo "disable_splash=1" >> /boot/config.txt
+sed -i 's/$/ logo.nologo consoleblank=0 loglevel=0 quiet/' /boot/cmdline.txt
+systemctl enable splashscreen.service
+
+
 
 # Now that files exist, we can modify them
 chmod +x /var/www/html/wifi-submit.sh
@@ -25,3 +39,11 @@ systemctl enable dnsmasq
 systemctl enable lighttpd
 
 systemctl enable wifi-check.service
+
+
+
+ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+dpkg-reconfigure -f noninteractive tzdata
+
+sed -i 's/^XKBLAYOUT=.*/XKBLAYOUT="us"/' /etc/default/keyboard
+setupcon -k --save-only
