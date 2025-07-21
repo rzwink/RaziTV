@@ -13,7 +13,7 @@ lighty-enable-mod cgi || true
 
 # Unpack filesystem (this populates /etc/systemd/system/, /var/www/html/, etc.)
 unpack /filesystem/etc /etc
-unpack /filesystem/usr /user
+unpack /filesystem/usr /usr
 unpack /filesystem/var /var
 
 # Now that files exist, we can modify them
