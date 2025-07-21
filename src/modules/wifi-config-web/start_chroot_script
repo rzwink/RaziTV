@@ -6,7 +6,7 @@ source /common.sh
 
 # Install packages
 apt-get update
-apt-get install -y iw hostapd dnsmasq lighttpd kweb
+apt-get install -y iw hostapd dnsmasq lighttpd chromium-browser
 
 # Enable CGI (optional if serving shell scripts with lighttpd)
 lighty-enable-mod cgi || true

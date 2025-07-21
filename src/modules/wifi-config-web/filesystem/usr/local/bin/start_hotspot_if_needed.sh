@@ -12,7 +12,8 @@ if [ -z "$SSID" ]; then
 
     # Optional: open local help page in kiosk mode if HDMI is attached
     if [ -n "$(tvservice -s | grep '0x')" ]; then
-        /usr/bin/kweb -K http://192.168.4.1/help.html
+        /usr/bin/chromium-browser --kiosk --noerrdialogs --disable-infobars "http://192.168.4.1/help.html"
+
     fi
 else
     echo "WiFi detected ($SSID). Stopping hotspot and launching kiosk..."
