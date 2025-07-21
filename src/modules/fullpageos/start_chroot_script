@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ssid = escapeshellarg($_POST['ssid']);
     $password = escapeshellarg($_POST['password']);
 
-    $conf = "network={\n    ssid=$ssid\n    psk=$password\n}\n";
+    $conf = "network={\n    ssid=\"" . escapeshellcmd($_POST['ssid']) . "\"\n    psk=\"" . escapeshellcmd($_POST['password']) . "\"\n}\n";
     file_put_contents('/etc/wpa_supplicant/wpa_supplicant.conf', $conf);
 
     exec("sudo systemctl stop hostapd");
@@ -230,6 +230,9 @@ then
     #Enable x11vnc service
     systemctl enable x11vnc.service
 fi
+
+systemctl enable hostapd.service
+systemctl enable dnsmasq.service
 
 #echo "sudo -u pi startx /opt/custompios/scripts/run_onepageos &" >> /etc/rc.local
 #echo "(sleep 15 ; sudo -u pi /opt/custompios/scripts/fullscreen) &" >> /etc/rc.local

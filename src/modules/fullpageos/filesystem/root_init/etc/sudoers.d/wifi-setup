@@ -1,0 +1,1 @@
+www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop hostapd, /usr/bin/systemctl stop dnsmasq, /sbin/wpa_cli, /bin/systemctl
