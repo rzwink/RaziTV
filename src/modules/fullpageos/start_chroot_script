@@ -177,49 +177,6 @@ then
     echo "pi:$FULLPAGEOS_OVERRIDE_PASSWORD" | chpasswd
 fi
 
-#Setup x11vnc
-if [ "$FULLPAGEOS_INCLUDE_X11VNC"  == "yes" ]
-then
-    apt-get install -y --force-yes x11vnc
-
-    mkdir -p /opt/custompios/vnc
-    chown "${BASE_USER}":"${BASE_USER}" /opt/custompios/vnc
-
-    # Set x11vnc password
-    if [ "$FULLPAGEOS_OVERRIDE_PASSWORD" != "default" ]
-    then
-        sudo -u pi /opt/custompios/scripts/setX11vncPass "$FULLPAGEOS_OVERRIDE_PASSWORD"
-        sync
-        if [ ! -f /opt/custompios/vnc/passwd ] || [ ! -s /opt/custompios/vnc/passwd ]; then
-          echo "/opt/custompios/vnc/passwd was not created. Trying again."
-          sudo -u pi /opt/custompios/scripts/setX11vncPass "$FULLPAGEOS_OVERRIDE_PASSWORD"
-          sync
-          if [ ! -f /opt/custompios/vnc/passwd ] || [ ! -s /opt/custompios/vnc/passwd ]; then
-            echo "/opt/custompios/vnc/passwd was not created again. Giving up."
-            echo "Failed to set a VNC password. Aborting build."
-            exit 1
-           fi
-        fi
-    else
-        sudo -u pi /opt/custompios/scripts/setX11vncPass raspberry
-        sync
-        if [ ! -f /opt/custompios/vnc/passwd ] || [ ! -s /opt/custompios/vnc/passwd ]; then
-          echo "/opt/custompios/vnc/passwd was not created. Trying again."
-          sudo -u pi /opt/custompios/scripts/setX11vncPass raspberry
-          sync
-          if [ ! -f /opt/custompios/vnc/passwd ] || [ ! -s /opt/custompios/vnc/passwd ]; then
-            echo "/opt/custompios/vnc/passwd was not created again. Giving up."
-            echo "Failed to set a VNC password. Aborting build."
-            exit 1
-          fi
-        fi
-    fi
-    ls -l /opt/custompios/vnc/passwd
-
-    #Enable x11vnc service
-    systemctl enable x11vnc.service
-fi
-
 #echo "sudo -u pi startx /opt/custompios/scripts/run_onepageos &" >> /etc/rc.local
 #echo "(sleep 15 ; sudo -u pi /opt/custompios/scripts/fullscreen) &" >> /etc/rc.local
 
