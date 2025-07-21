@@ -8,13 +8,6 @@ source /common.sh
 apt-get update
 apt-get install -y iw hostapd dnsmasq lighttpd chromium-browser fbi
 
-apt-get install -y --no-install-recommends \
-  chromium-browser \
-  xserver-xorg \
-  xinit \
-  x11-xserver-utils
-
-
 # Enable CGI (optional if serving shell scripts with lighttpd)
 lighty-enable-mod cgi || true
 
