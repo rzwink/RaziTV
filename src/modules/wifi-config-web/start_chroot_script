@@ -6,7 +6,7 @@ source /common.sh
 
 # Install packages
 apt-get update
-apt-get install -y iw hostapd dnsmasq lighttpd chromium-browser
+apt-get install -y iw hostapd dnsmasq lighttpd chromium-browser fbi
 
 apt-get install -y --no-install-recommends \
   chromium-browser \
@@ -22,6 +22,7 @@ lighty-enable-mod cgi || true
 unpack /filesystem/etc /etc
 unpack /filesystem/usr /usr
 unpack /filesystem/var /var
+unpack /filesystem/boot /boot
 
 apt-get install -y fbi
 echo "disable_splash=1" >> /boot/config.txt
