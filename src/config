@@ -1,6 +1,6 @@
 export DIST_NAME=RaziTV
 export DIST_VERSION=1.0.0
-export MODULES="base(raspicam, network, disable-services(wifi-config-web, gui(fullpageos)))"
+export MODULES="base(raspicam, network, disable-services(wifi-config-web))"
 
 # if set will enlarge root parition prior to build by provided size in MB
 export BASE_IMAGE_ENLARGEROOT=2000

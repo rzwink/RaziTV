@@ -5,42 +5,70 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-    - name: Update apt
-      run: sudo apt-get update
 
+    steps:
     - name: Install Dependencies
-      run: sudo apt install -y coreutils p7zip-full qemu-user-static python3-git
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static p7zip-full
 
     - name: Checkout CustomPiOS
       uses: actions/checkout@v2
       with:
         repository: 'guysoft/CustomPiOS'
         path: CustomPiOS
+        fetch-depth: 1
 
     - name: Checkout Project Repository
       uses: actions/checkout@v2
       with:
-        repository: ${{ github.repository }}
         path: repository
+        fetch-depth: 1
         submodules: true
 
-    - name: Download Raspbian Image
-      run: cd repository/src/image && wget -q -c --trust-server-names 'https://downloads.raspberrypi.org/raspios_lite_armhf_latest'
+    - name: Cache RPi OS image
+      uses: actions/cache@v3
+      with:
+        path: repository/src/image
+        key: raspios-${{ hashFiles('repository/src/image/*') }}
+        restore-keys: |
+          raspios-
+
+    - name: Download Raspbian Image if Missing
+      run: |
+        cd repository/src/image
+        if ! ls *raspios*lite*img >/dev/null 2>&1; then
+          wget -q -O raspios_lite_latest.zip https://downloads.raspberrypi.org/raspios_lite_armhf_latest
+        fi
+
+    - name: Cache CustomPiOS Build Workspace
+      uses: actions/cache@v3
+      with:
+        path: |
+          repository/src/workspace
+          repository/src/stage
+        key: custompios-${{ hashFiles('repository/src/**') }}
+        restore-keys: |
+          custompios-
 
     - name: Update CustomPiOS Paths
       run: cd repository/src && ../../CustomPiOS/src/update-custompios-paths
 
     - name: Build Image
-      run: sudo modprobe loop && cd repository/src && sudo bash -x ./build_dist
+      run: |
+        sudo modprobe loop
+        cd repository/src
+        sudo bash -x ./build_dist
 
     - name: Copy Output
-      run: cp ${{ github.workspace }}/repository/src/workspace/*-raspios-*-lite.img build.img
+      run: cp repository/src/workspace/*-raspios-*-lite.img build.img
 
-    - name: Zip Output
+    - name: Zip Output (only on main)
+      if: github.ref == 'refs/heads/main'
       run: gzip build.img
 
-    - name: Upload to GitHub Release
+    - name: Upload to GitHub Release (only on main)
+      if: github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1
       with:
         tag_name: latest
