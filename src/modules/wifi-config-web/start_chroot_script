@@ -40,11 +40,6 @@ systemctl enable dnsmasq.service
 systemctl enable lighttpd.service
 systemctl enable kiosk.service
 
-# Add emoji support
-sudo -u pi mkdir -p /home/pi/.fonts
-sudo -u pi wget --directory-prefix /home/pi/.fonts https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf
-
-
 ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
 dpkg-reconfigure -f noninteractive tzdata
 
