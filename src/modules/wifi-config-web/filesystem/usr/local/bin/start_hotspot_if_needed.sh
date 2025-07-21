@@ -1,23 +1,25 @@
 #!/bin/bash
-set -e
 
-# Check if wlan0 is connected
-if ! iwgetid -r; then
-    echo "[wifi-config-web] No WiFi connected. Enabling AP..."
+SSID=$(iwgetid -r)
 
-    rfkill unblock wlan
+if [ -z "$SSID" ]; then
+    echo "No WiFi detected. Starting hotspot..."
 
-    systemctl stop dhcpcd || true
-    ip link set wlan0 down || true
-    ip a flush dev wlan0
-    ip link set wlan0 up
-
-    # Static IP for AP
-    ip addr add 192.168.50.1/24 dev wlan0
-
+    # Start AP services
     systemctl start hostapd
     systemctl start dnsmasq
-    systemctl start wifi-config-web.service
+    systemctl start lighttpd
+
+    # Optional: open local help page in kiosk mode if HDMI is attached
+    if [ -n "$(tvservice -s | grep '0x')" ]; then
+        /usr/bin/kweb -K http://192.168.4.1/help.html
+    fi
 else
-    echo "[wifi-config-web] WiFi is already connected."
+    echo "WiFi detected ($SSID). Stopping hotspot and launching kiosk..."
+
+    systemctl stop hostapd
+    systemctl stop dnsmasq
+    systemctl stop lighttpd
+
+    /usr/local/bin/launch_browser.sh
 fi

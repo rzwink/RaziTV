@@ -6,7 +6,7 @@ source /common.sh
 
 # Install packages
 apt-get update
-apt-get install -y iw hostapd dnsmasq lighttpd
+apt-get install -y iw hostapd dnsmasq lighttpd kweb
 
 # Enable CGI (optional if serving shell scripts with lighttpd)
 lighty-enable-mod cgi || true
@@ -19,6 +19,7 @@ unpack /filesystem/var /var
 # Now that files exist, we can modify them
 chmod +x /var/www/html/wifi-submit.sh
 chmod +x /usr/local/bin/start_hotspot_if_needed.sh
+chmod +x /usr/local/bin/launch_browser.sh
 
 # Enable the main entry point service
 systemctl enable wifi-check.service
