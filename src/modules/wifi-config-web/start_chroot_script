@@ -4,18 +4,21 @@ set -x
 
 source /common.sh
 
-# Install necessary packages
+# Install packages
 apt-get update
 apt-get install -y iw hostapd dnsmasq lighttpd
 
-# Enable CGI if using lighttpd to serve shell script forms
-lighty-enable-mod cgi
+# Enable CGI (optional if serving shell scripts with lighttpd)
+lighty-enable-mod cgi || true
 
-# === Unpack filesystem/ now ===
-unpack /filesystem/root /
+# Unpack filesystem (this populates /etc/systemd/system/, /var/www/html/, etc.)
+unpack /filesystem/etc /etc
+unpack /filesystem/usr /user
+unpack /filesystem/var /var
 
-# Now you can safely chmod your web form handler
+# Now that files exist, we can modify them
 chmod +x /var/www/html/wifi-submit.sh
+chmod +x /usr/local/bin/start_hotspot_if_needed.sh
 
-# And now systemd will find and enable the service unit
+# Enable the main entry point service
 systemctl enable wifi-check.service
