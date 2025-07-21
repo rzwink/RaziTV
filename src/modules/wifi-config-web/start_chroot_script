@@ -33,6 +33,10 @@ systemctl enable dnsmasq.service
 systemctl enable lighttpd.service
 systemctl enable kiosk.service
 
+
+apt-get install -y --force-yes chromium-browser
+sed -i 's@%BROWSER_START_SCRIPT%@/opt/custompios/scripts/start_chromium_browser@g' /opt/custompios/scripts/run_onepageos
+
 ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
 dpkg-reconfigure -f noninteractive tzdata
 

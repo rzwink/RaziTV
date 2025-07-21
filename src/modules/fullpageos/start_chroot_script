@@ -64,25 +64,83 @@ EOF
     usermod -a -G www-data pi
     systemctl enable clear_lighttpd_cache.service
 
-    pushd /var/www/html
-        #Put git clones in place
-        if [ "$FULLPAGEOS_INCLUDE_DASHBOARD" == "yes" ]
-        then
-        gitclone FULLPAGEOS_DASHBOARD_REPO FullPageDashboard
-            chown -R pi:pi FullPageDashboard
-            chown -R www-data:www-data FullPageDashboard
-            chmod 775 FullPageDashboard
-            pushd FullPageDashboard
-                sed -i "s@'INIT_URL_PATH', __DIR__ . '/init.txt'@'INIT_URL_PATH', '/"${BASE_BOOT_MOUNT_PATH}"/fullpagedashboard.txt'@g" config.php
-            popd
-        fi
-        #Set Welcome screen
-        if [ "$FULLPAGEOS_INCLUDE_WELCOME" == "yes" ]
-        then        
-            gitclone FULLPAGEOS_WELCOME_REPO welcome
-            chown -R www-data:www-data welcome
-        fi
-    popd
+cat > /var/www/html/index.php <<EOF
+<?php
+// index.php
+
+function get_serial() {
+    $cpuinfo = file('/proc/cpuinfo');
+    foreach ($cpuinfo as $line) {
+        if (preg_match('/Serial\s+:\s+(\w+)/', $line, $matches)) {
+            return trim($matches[1]);
+        }
+    }
+    return 'unknown';
+}
+
+function is_connected() {
+    exec("ping -c1 8.8.8.8", $output, $status);
+    return $status === 0;
+}
+
+function get_ssid() {
+    exec("iwgetid -r", $output);
+    return isset($output[0]) ? trim($output[0]) : '';
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $ssid = escapeshellarg($_POST['ssid']);
+    $password = escapeshellarg($_POST['password']);
+
+    $conf = "network={\n    ssid=$ssid\n    psk=$password\n}\n";
+    file_put_contents('/etc/wpa_supplicant/wpa_supplicant.conf', $conf);
+
+    exec("sudo systemctl stop hostapd");
+    exec("sudo systemctl stop dnsmasq");
+    exec("sudo wpa_cli -i wlan0 reconfigure");
+    echo "<h3>Saved. Trying to connect to WiFi...</h3>";
+    exit;
+}
+
+$ssid = get_ssid();
+$connected = is_connected();
+
+if ($ssid && $connected) {
+    $serial = get_serial();
+    header("Location: https://www.razititle.com/$serial");
+    exit;
+} else {
+    exec("sudo systemctl start hostapd");
+    exec("sudo systemctl start dnsmasq");
+    exec("sudo systemctl start lighttpd");
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Configure WiFi</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 400px; margin: auto; padding-top: 50px; }
+    h2 { text-align: center; }
+    form { display: flex; flex-direction: column; }
+    label { margin-bottom: 10px; }
+    input { padding: 8px; font-size: 16px; }
+    button { padding: 10px; font-size: 16px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Connect to WiFi</h2>
+  <form method="POST">
+    <label>SSID:<br><input type="text" name="ssid" required></label>
+    <label>Password:<br><input type="password" name="password" required></label>
+    <button type="submit">Connect</button>
+  </form>
+</body>
+</html>
+
+EOF
+
     
     echo "enabled" > /"${BASE_BOOT_MOUNT_PATH}"/check_for_httpd
 else
